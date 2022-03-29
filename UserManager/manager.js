@@ -1,6 +1,5 @@
 const fs = require("fs");
 const crypto = require("crypto");
-const bcrypt = require('bcrypt');
 // Add to the top of the page where imports are done
 // This module helps to accept input from user
 const prompt = require("prompt-sync");
@@ -87,13 +86,6 @@ const getUser = (email, password) => {
 	return response;
 };
 
-// Encrypt Password so that no one can see it
-async function hashPassword(password) {
-    const salt = await bcrypt.genSalt(10)
-    const hash = await bcrypt.hash(password, salt)
-    console.log("encrypted password is",hash)
-}
-
 // Re-enter password and verification feature in Sign Up
 var verify = (password,verifyPassword) => {
     if(password===verifyPassword){
@@ -125,8 +117,9 @@ const signUp = () => {
 	while(!v)
 	{
 		console.log("Both passwords do not match");
+		p= input("Enter Your Password: ");
         verifyPassword = input("Verify Password: ");
-		v= verify(password,verifyPassword);
+		v= verify(p,verifyPassword);
 	}
 
 	// getUsers from the database with Email
@@ -138,9 +131,12 @@ const signUp = () => {
 	}
 	// else add the user and return userId
 	else {
-		const userId = addUser(email, password);
+		const hash = crypto
+		.createHash("sha1")
+		.update(password, "utf8")
+		.digest("hex");
+		const userId = addUser(email, hash);
 		console.log("SignUp Successful");
-		hashPassword(password);
 		return { userId };
 	}
 };
@@ -167,7 +163,7 @@ const signIn = () => {
 	else if (user.emailExists){
 		var a;
 		// If wrong password while sign in ask to repeat up to 3 times
-		for(a=0;a<3;a++){
+		for(a=1;a<3;a++){
 		console.log("Password Mismatch");	
 		console.log("Enter details again");
 		const email = input("Enter Your Email: ");
