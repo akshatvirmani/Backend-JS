@@ -1,7 +1,6 @@
 const request = require('request');
 const argv = require('yargs').argv;
 //const input = prompt();
-
 let apiKey = '50a7aa80fa492fa92e874d23ad061374';
 //const city = input("Enter Your city ");
 let city = argv.c || 'portland';
